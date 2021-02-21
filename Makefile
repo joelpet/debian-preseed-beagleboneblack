@@ -40,3 +40,6 @@ $(sha256sums): | $(dir $(sha256sums))
 	curl --location --no-progress-meter --output $@ '$(MIRROR)/$@'
 
 $(dir $(sha256sums)): ; mkdir -p $@
+
+example-preseed.txt:
+	curl --location --no-progress-meter --output $@ 'https://www.debian.org/releases/stable/example-preseed.txt'
