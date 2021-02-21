@@ -3,9 +3,7 @@ armhf = debian/dists/buster/main/installer-armhf/current/images
 sha256sums = $(armhf)/SHA256SUMS
 
 .PHONY: all
-all: \
-		out/netboot.img \
-		out/initrd-preseed.gz
+all: out/netboot.img
 
 .PHONY: clean
 clean:
@@ -17,28 +15,21 @@ out/netboot.img: \
 		| out
 	zcat $^ > $@
 
-out: ; mkdir -p $@
+out/hd-media.img: \
+		$(armhf)/hd-media/SD-card-images/firmware.BeagleBoneBlack.img.gz \
+		$(armhf)/hd-media/SD-card-images/partition.img.gz \
+		out/debian-10.8.0-armhf-netinst.iso \
+		| out
+	zcat $(wordlist 1,2,$^) > $@
 
-out/initrd-preseed: out/netboot_partition/initrd preseed.cfg
-	cp $< $@
-	echo preseed.cfg | cpio --format=newc --create --append --file=$@
+out/debian-10.8.0-armhf-netinst.iso: | out
+	curl --location --silent --output "$@" \
+		"https://cdimage.debian.org/debian-cd/$(VERSION)/armhf/iso-cd/$(notdir $@)"
+
+out: ; mkdir -p $@
 
 %.gz: %
 	gzip --keep --force $<
-
-out/netboot_partition/initrd: out/netboot_partition/initrd.gz
-	gunzip --keep --force $<
-
-out/netboot_partition/initrd.gz: mount_point=/media/netboot_partition.img
-out/netboot_partition/initrd.gz: out/netboot_partition.img | out/netboot_partition
-	udevil mount $< $(mount_point) \
-		&& cp -T $(mount_point)/$(notdir $@) $@ \
-		; udevil unmount $<
-
-out/netboot_partition: ; mkdir -p $@
-
-out/netboot_partition.img: $(armhf)/netboot/SD-card-images/partition.img.gz | out
-	zcat $< > $@
 
 $(armhf)/%: | $(sha256sums)
 	mkdir -p $(dir $@)
