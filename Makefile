@@ -5,13 +5,11 @@ sha256sums = $(armhf)/SHA256SUMS
 .PHONY: all
 all: \
 		out/netboot.img \
-		out/netboot-preseed.img
+		out/initrd-preseed.gz
 
 .PHONY: clean
 clean:
-	-rm -r debian
-
-out: ; mkdir -p $@
+	-rm -r debian out
 
 out/netboot.img: \
 		$(armhf)/netboot/SD-card-images/firmware.BeagleBoneBlack.img.gz \
@@ -19,27 +17,25 @@ out/netboot.img: \
 		| out
 	zcat $^ > $@
 
-out/netboot-preseed.img: \
-		$(armhf)/netboot/SD-card-images/firmware.BeagleBoneBlack.img.gz \
-		out/netboot_partition-preseed.img.gz \
-		| out
-	zcat $^ > $@
+out: ; mkdir -p $@
 
-out/netboot_partition-preseed.img.gz: out/netboot_partition-preseed.img
-	gzip --keep $<
+out/initrd-preseed: out/netboot_partition/initrd preseed.cfg
+	cp $< $@
+	echo preseed.cfg | cpio --format=newc --create --append --file=$@
 
-out/netboot_partition-preseed.img: out/netboot_partition-preseed
-	dd if=/dev/zero of=$@ bs=1M count=50
+%.gz: %
+	gzip --keep --force $<
 
-out/netboot_partition-preseed: \
-		out/netboot_partition.img \
-		preseed.cfg
-	udevil mount $< \
-		; cp -rT /media/$(notdir $<) $@ \
+out/netboot_partition/initrd: out/netboot_partition/initrd.gz
+	gunzip --keep --force $<
+
+out/netboot_partition/initrd.gz: mount_point=/media/netboot_partition.img
+out/netboot_partition/initrd.gz: out/netboot_partition.img | out/netboot_partition
+	udevil mount $< $(mount_point) \
+		&& cp -T $(mount_point)/$(notdir $@) $@ \
 		; udevil unmount $<
-	gunzip $@/initrd.gz
-	echo preseed.cfg | cpio --format=newc --create --append --file=$@/initrd
-	gzip $@/initrd
+
+out/netboot_partition: ; mkdir -p $@
 
 out/netboot_partition.img: $(armhf)/netboot/SD-card-images/partition.img.gz | out
 	zcat $< > $@
@@ -51,4 +47,5 @@ $(armhf)/%: | $(sha256sums)
 
 $(sha256sums): | $(dir $(sha256sums))
 	curl --location --no-progress-meter --output $@ '$(MIRROR)/$@'
+
 $(dir $(sha256sums)): ; mkdir -p $@
