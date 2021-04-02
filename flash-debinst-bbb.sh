@@ -10,7 +10,9 @@ main() {
     done
 
     local mmcblk_dev=${1?Missing argument: SD card device}
-    local variant=${2:-netboot}
+    local release=${2:-buster}
+    local version=${3:-current}
+    local variant=${4:-netboot}
 
     [[ -b "${mmcblk_dev}" ]] || { echo >&2 "${mmcblk_dev} is not a block device."; exit 1; }
 
@@ -21,7 +23,7 @@ main() {
         *) echo >&2 "Invalid installer SD card image variant: ${variant}" ;;
     esac
 
-    make "out/${variant}.img"
+    make "out/${variant}.img" "RELEASE=${release}" "VERSION=${version}"
 
     read -p "Overwrite data on device ${mmcblk_dev}? [y|N] " -r
     if [[ $REPLY =~ ^[Yy]$ ]]; then
