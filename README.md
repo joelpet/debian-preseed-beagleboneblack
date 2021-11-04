@@ -65,3 +65,9 @@ From https://www.debian.org/releases/stable/armhf/apbs03.en.html:
     This method relies on the fact that, at the end of the installation, the installer's cdebconf database is saved to the installed system in /var/log/installer/cdebconf. However, because the database may contain sensitive information, by default the files are only readable by root.
 
     The directory /var/log/installer and all files in it will be deleted from your system if you purge the package installation-report.
+
+## License
+
+GNU General Public License v3.0 or later.
+
+See COPYING to see the full text.
