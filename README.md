@@ -6,7 +6,7 @@ This is a utility to aid in preseeding the installation of Debian on the BeagleB
 
 1. Download and flash Debian installation SD card image to a memory card.
 
-    ./flash-debinst-bbb.sh <mmcblk_dev> [release=buster] [variant=netboot]
+    ./flash-debinst-bbb.sh <mmcblk_dev> [release=buster [version=current [variant=netboot]]]
 
 2. Add preseed file to initrd.
 
