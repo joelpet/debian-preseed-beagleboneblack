@@ -18,7 +18,14 @@ main() {
 
     case "${variant}" in
         hd-media)
-            echo >&2 "Warning: hd-media is not yet working; installer can not find ISO" ;;
+            cat >&2 <<EOF
+--------------------------------------------------------------------------------
+Remember to download a Debian installation ISO from
+https://cdimage.debian.org/cdimage/ and copy it onto the flashed SD card before
+booting your BeagleBone Black from it.
+--------------------------------------------------------------------------------
+EOF
+        ;;
         netboot) ;;
         *) echo >&2 "Invalid installer SD card image variant: ${variant}" ;;
     esac

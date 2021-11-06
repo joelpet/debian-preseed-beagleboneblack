@@ -5,11 +5,21 @@ armhf = debian/dists/$(RELEASE)/main/installer-armhf/$(VERSION)/images
 sha256sums = $(armhf)/SHA256SUMS
 
 .PHONY: all
-all: out/netboot.img
+all: out/hd-media.img out/netboot.img
 
 .PHONY: clean
 clean:
 	-rm -r debian out
+
+.PHONY: out/hd-media.img
+out/hd-media.img: out/hd-media_$(RELEASE)_$(VERSION).img
+	ln --force "$<" "$@"
+
+out/hd-media_$(RELEASE)_$(VERSION).img: \
+		$(armhf)/hd-media/SD-card-images/firmware.BeagleBoneBlack.img.gz \
+		$(armhf)/hd-media/SD-card-images/partition.img.gz \
+		| out
+	zcat $(wordlist 1,2,$^) > $@
 
 .PHONY: out/netboot.img
 out/netboot.img: out/netboot_$(RELEASE)_$(VERSION).img
@@ -20,17 +30,6 @@ out/netboot_$(RELEASE)_$(VERSION).img: \
 		$(armhf)/netboot/SD-card-images/partition.img.gz \
 		| out
 	zcat $(wordlist 1,2,$^) > $@
-
-out/hd-media.img: \
-		$(armhf)/hd-media/SD-card-images/firmware.BeagleBoneBlack.img.gz \
-		$(armhf)/hd-media/SD-card-images/partition.img.gz \
-		out/debian-10.8.0-armhf-netinst.iso \
-		| out
-	zcat $(wordlist 1,2,$^) > $@
-
-out/debian-10.8.0-armhf-netinst.iso: | out
-	curl --location --silent --output "$@" \
-		"https://cdimage.debian.org/debian-cd/$(VERSION)/armhf/iso-cd/$(notdir $@)"
 
 out: ; mkdir -p $@
 
