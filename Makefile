@@ -11,17 +11,15 @@ all: out/netboot.img
 clean:
 	-rm -r debian out
 
-out/release: $(if $(findstring $(RELEASE),$(file < out/release)),,write-release)
+.PHONY: out/netboot.img
+out/netboot.img: out/netboot_$(RELEASE)_$(VERSION).img
+	ln --force "$<" "$@"
 
-.PHONY: write-release
-write-release: | out
-	$(file > out/release,$(RELEASE))
-
-out/netboot.img: \
+out/netboot_$(RELEASE)_$(VERSION).img: \
 		$(armhf)/netboot/SD-card-images/firmware.BeagleBoneBlack.img.gz \
 		$(armhf)/netboot/SD-card-images/partition.img.gz \
 		| out
-	zcat $^ > $@
+	zcat $(wordlist 1,2,$^) > $@
 
 out/hd-media.img: \
 		$(armhf)/hd-media/SD-card-images/firmware.BeagleBoneBlack.img.gz \
@@ -39,15 +37,15 @@ out: ; mkdir -p $@
 %.gz: %
 	gzip --keep --force $<
 
-$(armhf)/%: out/release | $(sha256sums)
+$(armhf)/%: | $(sha256sums)
 	mkdir -p $(dir $@)
 	curl --location --silent --output $@ "$(MIRROR)/$@"
 	grep '$*' $(sha256sums) | awk '{print $$1, "./$@"}' | sha256sum --check -
 
-$(sha256sums): out/release | $(dir $(sha256sums))
+$(sha256sums): | $(dir $(sha256sums))
 	curl --location --no-progress-meter --output $@ '$(MIRROR)/$@'
 
 $(dir $(sha256sums)): ; mkdir -p $@
 
-example-preseed.txt: out/release
+example-preseed.txt:
 	curl --location --no-progress-meter --output $@ 'https://www.debian.org/releases/$(RELEASE)/example-preseed.txt'
