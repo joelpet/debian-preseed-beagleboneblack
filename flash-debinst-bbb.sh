@@ -17,7 +17,7 @@ main() {
     [[ -b "${mmcblk_dev}" ]] || { echo >&2 "${mmcblk_dev} is not a block device."; exit 1; }
 
     case "${variant}" in
-        hd-media)
+        hd-media|hd-media-daily)
             cat >&2 <<EOF
 --------------------------------------------------------------------------------
 Remember to download a Debian installation ISO from
