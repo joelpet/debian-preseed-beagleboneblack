@@ -10,7 +10,7 @@ all: out/hd-media.img out/hd-media-daily.img out/netboot.img out/netboot-daily.i
 
 .PHONY: clean
 clean:
-	-rm -r debian out
+	-rm -r daily-images debian out
 
 example-preseed.txt:
 	curl --location --no-progress-meter --output $@ 'https://www.debian.org/releases/$(RELEASE)/example-preseed.txt'
