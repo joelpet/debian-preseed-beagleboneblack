@@ -20,6 +20,14 @@ If, after "Downloading Release Files...", a warning is shown about missing kerne
 First, delete the old ones by running `make clean`.
 Then, start over from the beginning.
 
+### Official firmware images
+
+If everything else fails, the [official firmware
+images](https://beagleboard.org/latest-images) from the manufacturer of the
+board may come in handy one way or another:
+
+    xzcat <bone_eMMC_flasher_img_xz> | pv | sudo tee <mmcblk_dev> > /dev/null
+
 ## Resources
 
 https://www.debian.org/releases/stable/armhf/apb.en.html
