@@ -41,8 +41,7 @@ out: ; mkdir -p $@
 	gzip --keep --force $<
 
 $(armhf)/%: | $(sha256sums)
-	mkdir -p $(dir $@)
-	curl --location --silent --output $@ "$(MIRROR)/$@"
+	curl --location --no-progress-meter --create-dirs --output $@ "$(MIRROR)/$@"
 	grep '$*' $(sha256sums) | awk '{print $$1, "./$@"}' | sha256sum --check -
 
 $(sha256sums): | $(dir $(sha256sums))
