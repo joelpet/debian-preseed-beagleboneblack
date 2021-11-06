@@ -26,11 +26,11 @@ booting your BeagleBone Black from it.
 --------------------------------------------------------------------------------
 EOF
         ;;
-        netboot) ;;
+        netboot|netboot-daily) ;;
         *) echo >&2 "Invalid installer SD card image variant: ${variant}" ;;
     esac
 
-    make "out/${variant}.img" "RELEASE=${release}" "VERSION=${version}"
+    make "out/${variant}.img" "RELEASE=${release}" "VERSION=${version}" DAILY_VERSION="${version}"
 
     read -p "Overwrite data on device ${mmcblk_dev}? [y|N] " -r
     if [[ $REPLY =~ ^[Yy]$ ]]; then
